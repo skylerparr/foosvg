@@ -1,5 +1,6 @@
 package com.lorentz.svg.display.base;
 
+import com.lorentz.svg.data.style.StyleDeclaration;
 import com.lorentz.svg.data.text.SVGDrawnText;
 import com.lorentz.svg.data.text.SVGTextToDraw;
 import com.lorentz.svg.display.SVGText;
@@ -188,12 +189,15 @@ class SVGTextContainer extends SVGGraphicsElement
         textToDraw.useEmbeddedFonts = document.useEmbeddedFonts;
         textToDraw.parentFontSize = (parentElement != null) ? parentElement.currentFontSize : currentFontSize;
         textToDraw.fontSize = currentFontSize;
-        textToDraw.fontFamily = Std.string(finalStyle.getPropertyValue("font-family") || document.defaultFontName);
-        textToDraw.fontWeight = finalStyle.getPropertyValue("font-weight") || "normal";
-        textToDraw.fontStyle = finalStyle.getPropertyValue("font-style") || "normal";
-        textToDraw.baselineShift = finalStyle.getPropertyValue("baseline-shift") || "baseline";
+        textToDraw.fontFamily = getIfNull(finalStyle, "font-family", document.defaultFontName);
+        textToDraw.fontWeight = getIfNull(finalStyle, "font-weight", "normal");
+        textToDraw.fontStyle = getIfNull(finalStyle, "font-style", "normal");
+        textToDraw.baselineShift = getIfNull(finalStyle, "baseline-shift", "baseline");
         
-        var letterSpacing : String = finalStyle.getPropertyValue("letter-spacing") || "normal";
+        var letterSpacing : String = cast finalStyle.getPropertyValue("letter-spacing");
+        if(letterSpacing == null) {
+            letterSpacing = "normal";
+        }
         if (letterSpacing != null && letterSpacing.toLowerCase() != "normal")
         {
             textToDraw.letterSpacing = SVGUtil.getUserUnit(letterSpacing, currentFontSize, viewPortWidth, viewPortHeight, SVGUtil.FONT_SIZE);
@@ -231,11 +235,19 @@ class SVGTextContainer extends SVGGraphicsElement
         
         return drawnText;
     }
+
+    private function getIfNull(style: StyleDeclaration, field: String, ifNull: String): String {
+        var retVal: String = style.getPropertyValue(field);
+        if(retVal == null) {
+            retVal = ifNull;
+        }
+        return retVal;
+    }
     
     private function get_hasComplexFill() : Bool
     {
         var fill : String = finalStyle.getPropertyValue("fill");
-        return fill && fill.indexOf("url") != -1;
+        return fill != null && fill.indexOf("url") != -1;
     }
     
     private function getFillColor() : Int
@@ -254,7 +266,12 @@ class SVGTextContainer extends SVGGraphicsElement
     
     private function getFillOpacity() : Float
     {
-        return finalStyle.getPropertyValue("fill-opacity") || 1;
+        var retVal: Dynamic = finalStyle.getPropertyValue("fill-opacity");
+        if(retVal == null) {
+            retVal = 1;
+        }
+        return cast(retVal);
+
     }
     
     private function getDirectionFromStyles() : String
@@ -289,7 +306,10 @@ class SVGTextContainer extends SVGGraphicsElement
     
     public function doAnchorAlign(direction : String, textStartX : Float, textEndX : Float) : Void
     {
-        var textAnchor : String = finalStyle.getPropertyValue("text-anchor") || "start";
+        var textAnchor : String = finalStyle.getPropertyValue("text-anchor");
+        if(textAnchor == null) {
+            textAnchor = "start";
+        }
         
         var anchorX : Float = getViewPortUserUnit(svgX, SVGUtil.WIDTH);
         
@@ -341,7 +361,7 @@ class SVGTextContainer extends SVGGraphicsElement
             if (Std.is(renderedText, SVGTextContainer))
             {
                 var textContainer : SVGTextContainer = try cast(renderedText, SVGTextContainer) catch(e:Dynamic) null;
-                if (!textContainer.svgX)
+                if (textContainer.svgX == null)
                 {
                     textContainer.offset(offsetX);
                 }

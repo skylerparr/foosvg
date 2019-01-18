@@ -20,17 +20,19 @@ class FlashPlayerUtils
     
     private static function graphicsHasCubicCurveToMethod() : Bool
     {
-        return FastXML.filterNodes(describeType(Graphics).factory.method, function(x:FastXML) {
-                    if(x.att.name == "cubicCurveTo")
-                        return true;
-                    return false;
-
-                }).length() > 0;
+//        return FastXML.filterNodes(describeType(Graphics).factory.method, function(x:FastXML) {
+//                    if(x.att.name == "cubicCurveTo")
+//                        return true;
+//                    return false;
+//
+//                }).length() > 0;
+        return true;
     }
     
     private static function graphicsPathCommandHasCubicCurveToConstant() : Bool
     {
-        return Lambda.has(GraphicsPathCommand, "CUBIC_CURVE_TO");
+//        return GraphicsPathCommand.CUBIC_CURVE_TO != null;
+        return false;
     }
 
     public function new()

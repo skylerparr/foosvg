@@ -14,7 +14,7 @@ class StyleDeclaration extends EventDispatcher implements ICloneable
     private var _propertiesValues : Dynamic = { };
     private var _indexedProperties : Array<Dynamic> = [];
     
-    public function getPropertyValue(propertyName : String) : String
+    public function getPropertyValue(propertyName : String) : Dynamic
     {
         return Reflect.field(_propertiesValues, propertyName);
     }

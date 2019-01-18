@@ -41,7 +41,10 @@ class SVGText extends SVGTextContainer
         
         document.textDrawer.start();
         
-        var direction : String = getDirectionFromStyles() || "lr";
+        var direction : String = getDirectionFromStyles();
+        if(direction == null) {
+            direction = "lr";
+        }
         var textDirection : String = direction;
         
         currentX = getViewPortUserUnit(svgX, SVGUtil.WIDTH);
@@ -67,8 +70,12 @@ class SVGText extends SVGTextContainer
             if (Std.is(textElement, String))
             {
                 var drawnText : SVGDrawnText = createTextSprite(Std.string(textElement), document.textDrawer);
-                
-                if ((drawnText.direction || direction) == "lr")
+
+                if(drawnText.direction == null) {
+                    drawnText.direction = direction;
+                }
+
+                if (drawnText.direction == "lr")
                 {
                     drawnText.displayObject.x = currentX - drawnText.startX;
                     drawnText.displayObject.y = currentY - drawnText.startY - drawnText.baseLineShift;
@@ -81,7 +88,7 @@ class SVGText extends SVGTextContainer
                     currentX -= drawnText.textWidth;
                 }
                 
-                if (drawnText.direction)
+                if (drawnText.direction != null)
                 {
                     textDirection = drawnText.direction;
                 }

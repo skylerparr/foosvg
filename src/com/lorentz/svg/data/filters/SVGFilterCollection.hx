@@ -7,9 +7,9 @@ class SVGFilterCollection implements ICloneable
 {
     public var svgFilters : Array<ISVGFilter> = new Array<ISVGFilter>();
     
-    public function getFlashFilters() : Array<Dynamic>
+    public function getFlashFilters() : Array<BitmapFilter>
     {
-        var flashFilters : Array<Dynamic> = [];
+        var flashFilters : Array<BitmapFilter> = [];
         for (svgFilter in svgFilters)
         {
             var flashFilter : BitmapFilter = svgFilter.getFlashFilter();
@@ -21,7 +21,7 @@ class SVGFilterCollection implements ICloneable
         return flashFilters;
     }
     
-    public function clone() : Dynamic
+    public function clone() : SVGFilterCollection
     {
         var c : SVGFilterCollection = new SVGFilterCollection();
         var i : Int = 0;

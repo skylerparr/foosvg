@@ -86,15 +86,16 @@ class ProcessExecutor
     
     public function removeProcess(process : IProcess) : Void
     {
-        var index : Int = Lambda.indexOf(_processes, process);
-        
-        if (index == -1)
-        {
-            return;
-        }
-        
-        _processes.splice(index, 1);
-        
+//        var index : Int = Lambda.indexOf(_processes, process);
+//
+//        if (index == -1)
+//        {
+//            return;
+//        }
+//
+//        _processes.splice(index, 1);
+
+        _processes.remove(process);
         if (_processes.length == 0)
         {
             _stage.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);

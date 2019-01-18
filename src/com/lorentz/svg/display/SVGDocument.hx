@@ -1,5 +1,6 @@
 package com.lorentz.svg.display;
 
+import flash.events.EventDispatcher;
 import haxe.xml.Fast;
 import flash.errors.Error;
 import haxe.Constraints.Function;
@@ -183,10 +184,10 @@ class SVGDocument extends SVGContainer {
         if (Std.is(xmlOrXmlString, String)) {
             var xmlString: String = SVGUtil.processXMLEntities(Std.string(xmlOrXmlString));
 
-            var oldXMLIgnoreWhitespace: Bool = FastXML.ignoreWhitespace;
-            FastXML.ignoreWhitespace = false;
-            xml = new FastXML(xmlString);
-            FastXML.ignoreWhitespace = oldXMLIgnoreWhitespace;
+//            var oldXMLIgnoreWhitespace: Bool = FastXML.ignoreWhitespace;
+//            FastXML.ignoreWhitespace = false;
+            xml = new FastXML(Xml.parse(xmlString));
+//            FastXML.ignoreWhitespace = oldXMLIgnoreWhitespace;
         }
         else if (Std.is(xmlOrXmlString, FastXML)) {
             xml = try cast(xmlOrXmlString, FastXML) catch (e: Dynamic) null;
@@ -198,7 +199,7 @@ class SVGDocument extends SVGContainer {
         parseXML(xml);
     }
 
-    private function parseXML(svg: Fast): Void {
+    private function parseXML(svg: FastXML): Void {
         clear();
 
         if (_parsing) {
@@ -342,21 +343,25 @@ class SVGDocument extends SVGContainer {
     }
 
     public function resolveURL(url: String): String {
-        var baseUrlFinal: String = baseURL || defaultBaseUrl;
+        var baseUrlFinal: String = baseURL;
+        if(baseUrlFinal == null) {
+            baseUrlFinal = defaultBaseUrl;
+        }
 
+        var slashPos: Int = 0;
         if (url != null && !isHttpURL(url) && baseUrlFinal != null) {
             if (url.indexOf("./") == 0) {
                 url = url.substring(2);
             }
 
             if (isHttpURL(baseUrlFinal)) {
-                var slashPos: Float;
 
-                if (url.charAt(0) == "/")
+                if (url.charAt(0) == "/") {
+                    slashPos = baseUrlFinal.indexOf("/", 8);
+                }
 
                     // non-relative path, "/dev/foo.bar".{
 
-                    slashPos = baseUrlFinal.indexOf("/", 8);
                 if (slashPos == -1) {
                     slashPos = baseUrlFinal.length;
                 }
@@ -372,7 +377,7 @@ class SVGDocument extends SVGContainer {
             }
 
             if (slashPos > 0) {
-                url = baseUrlFinal.substring(0, slashPos) + url;
+                url = baseUrlFinal.substring(0, Std.int(slashPos)) + url;
             }
         }
         else {
@@ -436,8 +441,8 @@ class SVGDocument extends SVGContainer {
             removeEventListener(Event.ADDED_TO_STAGE, validateCaller);
         }
         else {
-            e.target.removeEventListener(Event.ENTER_FRAME, validateCaller, false);
-            e.target.removeEventListener(Event.RENDER, validateCaller, false);
+            cast(e.target, EventDispatcher).removeEventListener(Event.ENTER_FRAME, validateCaller, false);
+            cast(e.target, EventDispatcher).removeEventListener(Event.RENDER, validateCaller, false);
             if (stage == null)
 
                 // received render, but the stage is not available, so we will listen for addedToStage again:{

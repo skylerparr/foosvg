@@ -134,7 +134,7 @@ class SVGPattern extends SVGContainer implements ISVGViewBox
         {
             var refPattern : SVGPattern = this;
             
-            while (refPattern.svgHref)
+            while (refPattern.svgHref != null)
             {
                 refPattern = try cast(document.getDefinition(StringUtil.ltrim(refPattern.svgHref, "#")), SVGPattern) catch(e:Dynamic) null;
                 

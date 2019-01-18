@@ -3,227 +3,63 @@
 
 package com.lorentz.svg.utils;
 
+class SVGColorUtils {
+    private static var colors: Dynamic = { };
 
-class SVGColorUtils
-{
-    private static var colors : Dynamic = { };
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public static function getColorByName(name : String) : Int
-    {
+    public static function getColorByName(name: String): Int {
         return Reflect.field(colors, Std.string(name.toLowerCase()));
     }
-    
-    public static function parseToUint(s : String) : Int
-    {
-        if (s == null)
-        {
+
+    public static function parseToUint(s: String): Int {
+        if (s == null) {
             return 0x000000;
         }
-        
+
         s = StringTools.trim(s);
-        
-        if (s == "none" || s == "")
-        {
+
+        if (s == "none" || s == "") {
             return 0x000000;
         }
-        else if (s.charAt(0) == "#")
-        {
+        else if (s.charAt(0) == "#") {
             s = s.substring(1);
-            if (s.length < 6)
-            {
+            if (s.length < 6) {
                 s = s.charAt(0) + s.charAt(0) + s.charAt(1) + s.charAt(1) + s.charAt(2) + s.charAt(2);
             }
-            return new Int("0x" + s);
+            return Std.parseInt("0x" + s);
         }
-        else
-        {
-            var rgb : Array<Dynamic> = (new as3hx.Compat.Regex('\\s*rgb\\s*\\(\\s*(.*?)\\s*,\\s*(.*?)\\s*,\\s*(.*?)\\s*\\)', "g")).exec(s);
-            
-            if (rgb != null)
-            {
-                var r : Int = rgbColorPartToUint(rgb[1]);
-                var g : Int = rgbColorPartToUint(rgb[2]);
-                var b : Int = rgbColorPartToUint(rgb[3]);
+        else {
+            var rgb: Array<Dynamic> = (new as3hx.Compat.Regex('\\s*rgb\\s*\\(\\s*(.*?)\\s*,\\s*(.*?)\\s*,\\s*(.*?)\\s*\\)', "g")).exec(s);
+
+            if (rgb != null) {
+                var r: Int = rgbColorPartToUint(rgb[1]);
+                var g: Int = rgbColorPartToUint(rgb[2]);
+                var b: Int = rgbColorPartToUint(rgb[3]);
                 return as3hx.Compat.parseInt(r << 16 | g << 8 | b);
             }
-            else
-            {
+            else {
                 return getColorByName(s);
             }
         }
     }
-    
-    private static function rgbColorPartToUint(s : String) : Int
-    {
-        if (s.indexOf("%") != -1)
-        {
+
+    private static function rgbColorPartToUint(s: String): Int {
+        if (s.indexOf("%") != -1) {
             return as3hx.Compat.parseInt(as3hx.Compat.parseFloat(StringTools.replace(s, "%", "")) / 100 * 255);
         }
-        else
-        {
+        else {
             return as3hx.Compat.parseInt(s);
         }
     }
-    
-    public static function uintToSVG(color : Int) : String
-    {
-        var colorText : String = Std.string(color);
-        while (colorText.length < 6)
-        {
+
+    public static function uintToSVG(color: Int): String {
+        var colorText: String = Std.string(color);
+        while (colorText.length < 6) {
             colorText = "0" + colorText;
         }
         return "#" + colorText;
     }
 
-    public function new()
-    {
+    public function new() {
     }
     private static var SVGColorUtils_static_initializer = {
         Reflect.setField(colors, "aliceblue", 0xF0F8FF);

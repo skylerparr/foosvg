@@ -11,8 +11,8 @@ class GraphicsPathDrawer implements IDrawer
     public var penX(get, never) : Float;
     public var penY(get, never) : Float;
 
-    public var commands : Array<Int>;
-    public var pathData : Array<Float>;
+    public var commands : flash.Vector<Int>;
+    public var pathData : flash.Vector<Float>;
     
     private var _penX : Float = 0;
     private function get_penX() : Float
@@ -28,8 +28,8 @@ class GraphicsPathDrawer implements IDrawer
     
     public function new()
     {
-        commands = new Array<Int>();
-        pathData = new Array<Float>();
+        commands = new flash.Vector<Int>();
+        pathData = new flash.Vector<Float>();
     }
     
     public function moveTo(x : Float, y : Float) : Void
@@ -63,21 +63,21 @@ class GraphicsPathDrawer implements IDrawer
     
     public function cubicCurveTo(cx1 : Float, cy1 : Float, cx2 : Float, cy2 : Float, x : Float, y : Float) : Void
     {
-        if (FlashPlayerUtils.supportsCubicCurves)
-        {
-            commands.push(Reflect.field(GraphicsPathCommand, "CUBIC_CURVE_TO"));
-            pathData.push(cx1);
-            pathData.push(cy1);
-            pathData.push(cx2);
-            pathData.push(cy2);
-            pathData.push(x);
-            pathData.push(y);
-            
-            _penX = x;_penY = y;
-        }
-        //Convert cubic curve to quadratic curves
-        else
-        {
+//        if (FlashPlayerUtils.supportsCubicCurves)
+//        {
+//            commands.push(Reflect.field(GraphicsPathCommand, "CUBIC_CURVE_TO"));
+//            pathData.push(cx1);
+//            pathData.push(cy1);
+//            pathData.push(cx2);
+//            pathData.push(cy2);
+//            pathData.push(x);
+//            pathData.push(y);
+//
+//            _penX = x;_penY = y;
+//        }
+//        //Convert cubic curve to quadratic curves
+//        else
+//        {
             
             var anchor1 : Point = new Point(_penX, _penY);
             var control1 : Point = new Point(cx1, cy1);
@@ -86,11 +86,11 @@ class GraphicsPathDrawer implements IDrawer
             
             var bezier : Bezier = new Bezier(anchor1, control1, control2, anchor2);
             
-            for (quadP/* AS3HX WARNING could not determine type for var: quadP exp: EField(EIdent(bezier),QPts) type: null */ in bezier.QPts)
+            for (quadP in bezier.QPts)
             {
                 curveTo(quadP.c.x, quadP.c.y, quadP.p.x, quadP.p.y);
             }
-        }
+//        }
     }
     
     public function arcTo(rx : Float, ry : Float, angle : Float, largeArcFlag : Bool, sweepFlag : Bool, x : Float, y : Float) : Void

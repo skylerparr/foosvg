@@ -1,16 +1,15 @@
 package com.lorentz.svg.parser;
 
-import haxe.xml.Fast;
 import haxe.Constraints.Function;
 
 class VisitDefinition
 {
-    public function new(node : Fast, onComplete : Function = null)
+    public function new(node : FastXML, onComplete : Function = null)
     {
         this.node = node;
         this.onComplete = onComplete;
     }
     
-    public var node : Fast;
+    public var node : FastXML;
     public var onComplete : Function;
 }

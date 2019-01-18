@@ -1,5 +1,6 @@
 package com.lorentz.svg.utils;
 
+import Xml.XmlType;
 import com.lorentz.svg.data.style.StyleDeclaration;
 import flash.geom.Matrix;
 
@@ -16,13 +17,14 @@ class SVGUtil
             {
                 break;
             }
-            
+
             var entityDeclaration : String = entity[0];
             var entityName : String = entity[1];
             var entityValue : String = entity[2];
             
             xmlString = StringTools.replace(xmlString, entityDeclaration, "");
-            xmlString = xmlString.replace(new as3hx.Compat.Regex("&" + entityName + ";", "g"), entityValue);
+            var ereg: EReg = new EReg("&" + entityName + ";", "g");
+            xmlString = ereg.replace(xmlString, entityValue);
         }
         
         return xmlString;
@@ -41,7 +43,8 @@ class SVGUtil
     {
         for (entityName in Reflect.fields(_specialXMLEntities))
         {
-            s = s.replace(new as3hx.Compat.Regex("\\&" + entityName + ";", "g"), Reflect.field(_specialXMLEntities, entityName));
+            var ereg: EReg = new EReg("\\&" + entityName + ";", "g");
+            s = ereg.replace(s, Reflect.field(_specialXMLEntities, entityName));
         }
         
         return s;
@@ -49,16 +52,22 @@ class SVGUtil
     
     public static function replaceCharacterReferences(s : String) : String
     {
-        for (hexaUnicode/* AS3HX WARNING could not determine type for var: hexaUnicode exp: ECall(EField(EIdent(s),match),[ERegexp(&#x[A-Fa-f0-9]+;,g)]) type: null */ in s.match(new as3hx.Compat.Regex('&#x[A-Fa-f0-9]+;', "g")))
+        var ereg: EReg = new EReg('&#x[A-Fa-f0-9]+;', "g");
+        for (hexaUnicode in ereg.split(s))
         {
-            var hexaValue : String = new as3hx.Compat.Regex('&#x([A-Fa-f0-9]+);', "").exec(hexaUnicode)[1];
-            s = s.replace(new as3hx.Compat.Regex("\\&#x" + hexaValue + ";", "g"), String.fromCharCode("0x" + hexaValue));
+            var ereg: EReg = new EReg('&#x([A-Fa-f0-9]+);', "");
+            var hexaValue : String = ereg.split(hexaUnicode)[1];
+            var ereg: EReg = new EReg("\\&#x" + hexaValue + ";", "g");
+            s = ereg.replace(s, String.fromCharCode(Std.parseInt("0x" + hexaValue)));
         }
-        
-        for (decimalUnicode/* AS3HX WARNING could not determine type for var: decimalUnicode exp: ECall(EField(EIdent(s),match),[ERegexp(&#[0-9]+;,g)]) type: null */ in s.match(new as3hx.Compat.Regex('&#[0-9]+;', "g")))
+
+        var ereg: EReg = new EReg('&#[0-9]+;', "g");
+        for (decimalUnicode in ereg.split(s))
         {
-            var decimalValue : String = new as3hx.Compat.Regex('&#([0-9]+);', "").exec(decimalUnicode)[1];
-            s = s.replace(new as3hx.Compat.Regex("\\&#" + decimalValue + ";", "g"), String.fromCharCode(as3hx.Compat.parseInt(decimalValue)));
+            var ereg: EReg = new EReg('&#([0-9]+);', "");
+            var decimalValue : String = ereg.split(decimalUnicode)[1];
+            var ereg: EReg = new EReg("\\&#" + decimalValue + ";", "g");
+            s = ereg.replace(s, String.fromCharCode(as3hx.Compat.parseInt(decimalValue)));
         }
         
         return s;
@@ -106,16 +115,21 @@ class SVGUtil
     
     public static function presentationStyleToStyleDeclaration(elt : FastXML, styleDeclaration : StyleDeclaration = null) : StyleDeclaration
     {
+        var x: Xml = elt.x;
+        if(x.nodeType == XmlType.Document) {
+            x = x.firstElement();
+        }
         if (styleDeclaration == null)
         {
             styleDeclaration = new StyleDeclaration();
         }
         
-        for (styleName in presentationStyles)
+        for (xmlStyle in presentationStyles)
         {
-            if (Lambda.has(elt, "@" + styleName))
+            var styleName: String = x.get(xmlStyle);
+            if (styleName != null)
             {
-                styleDeclaration.setProperty(styleName, elt.get("@" + styleName));
+                styleDeclaration.setProperty(styleName, styleName);
             }
         }
         

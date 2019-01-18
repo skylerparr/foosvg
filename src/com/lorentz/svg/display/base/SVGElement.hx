@@ -1,5 +1,6 @@
 package com.lorentz.svg.display.base;
 
+import flash.filters.BitmapFilter;
 import flash.errors.Error;
 import haxe.Constraints.Function;
 import com.lorentz.svg.data.filters.SVGFilterCollection;
@@ -502,7 +503,7 @@ class SVGElement extends Sprite implements ICloneable {
     private function computeTransformMatrix(): Matrix {
         var mat: Matrix = null;
 
-        if (transform.matrix) {
+        if (transform.matrix != null) {
             mat = transform.matrix;
             mat.identity();
         }
@@ -576,7 +577,7 @@ class SVGElement extends Sprite implements ICloneable {
             var validateN: Int = 0;
 
             var onClipOrMaskValidated: SVGEvent->Void = function(e: SVGEvent): Void {
-                e.target.removeEventListener(SVGEvent.VALIDATED, onClipOrMaskValidated);
+//                e.target.removeEventListener(SVGEvent.VALIDATED, onClipOrMaskValidated);
 
                 --validateN;
 
@@ -592,7 +593,7 @@ class SVGElement extends Sprite implements ICloneable {
                             var matrix: Matrix = new Matrix();
                             matrix.translate(-maskRc.left, -maskRc.top);
 
-                            var bmd: BitmapData = new BitmapData(maskRc.width, maskRc.height, true, 0);
+                            var bmd: BitmapData = new BitmapData(Std.int(maskRc.width), Std.int(maskRc.height), true, 0);
                             bmd.draw(mask, matrix, null, null, null, true);
 
                             mask.filters = [_maskRgbToLuminanceFilter];
@@ -614,7 +615,7 @@ class SVGElement extends Sprite implements ICloneable {
                             mask.mask = null;
                         }
                     }
-                    else if (clip /*&& !mask*/) {
+                    else if (clip != null /*&& !mask*/) {
                         _mask = clip;
                         _mask.cacheAsBitmap = false;
                         content.cacheAsBitmap = false;
@@ -636,7 +637,10 @@ class SVGElement extends Sprite implements ICloneable {
                 }
             }
 
-            var clipPathValue: String = finalStyle.getPropertyValue("clip-path") || svgClipPath;
+            var clipPathValue: String = finalStyle.getPropertyValue("clip-path");
+            if(clipPathValue == null) {
+                clipPathValue = svgClipPath;
+            }
             if (clipPathValue != null && clipPathValue != "" && clipPathValue != "none") {
 
                 var clipPathId: String = SVGUtil.extractUrlId(clipPathValue);
@@ -659,7 +663,10 @@ class SVGElement extends Sprite implements ICloneable {
         if (_opacityChanged) {
             _opacityChanged = false;
 
-            content.alpha = finalStyle.getPropertyValue("opacity") || 1;
+            content.alpha = 1;
+            if(finalStyle.getPropertyValue("opacity") != null) {
+                content.alpha = finalStyle.getPropertyValue("opacity");
+            }
 
             if (content.alpha != 1 && Std.is(this, SVGContainer)) {
                 content.blendMode = BlendMode.LAYER;
@@ -672,7 +679,7 @@ class SVGElement extends Sprite implements ICloneable {
         if (_svgFilterChanged) {
             _svgFilterChanged = false;
 
-            var filters: Array<Dynamic> = [];
+            var filters: Array<BitmapFilter> = [];
 
             var filterLink: String = finalStyle.getPropertyValue("filter");
             if (filterLink != null) {
@@ -766,10 +773,10 @@ class SVGElement extends Sprite implements ICloneable {
             _viewPortHeight = (try cast(this, ISVGViewBox) catch (e: Dynamic) null).svgViewBox.height;
         }
         else {
-            if (viewPort.svgWidth) {
+            if (viewPort.svgWidth != null) {
                 _viewPortWidth = getViewPortUserUnit(viewPort.svgWidth, SVGUtil.WIDTH);
             }
-            if (viewPort.svgHeight) {
+            if (viewPort.svgHeight != null) {
                 _viewPortHeight = getViewPortUserUnit(viewPort.svgHeight, SVGUtil.HEIGHT);
             }
         }

@@ -118,7 +118,7 @@ class SVGMarker extends SVGContainer implements ISVGViewBox implements ISVGPrese
     
     override private function getElementToInheritStyles() : SVGElement
     {
-        if (!parentElement)
+        if (parentElement == null)
         {
             return null;
         }
@@ -169,8 +169,11 @@ class SVGMarker extends SVGContainer implements ISVGViewBox implements ISVGPrese
                 if (svgPreserveAspectRatio != "none")
                 {
                     var viewPortBox : Rectangle = new Rectangle(0, 0, markerWidth, markerHeight);
-                    
-                    var preserveAspectRatio : Dynamic = SVGParserCommon.parsePreserveAspectRatio(svgPreserveAspectRatio || "");
+
+                    if(svgPreserveAspectRatio == null) {
+                        svgPreserveAspectRatio = "";
+                    }
+                    var preserveAspectRatio : Dynamic = SVGParserCommon.parsePreserveAspectRatio(svgPreserveAspectRatio);
                     
                     var viewPortContentMetrics : Dynamic = SVGViewPortUtils.getContentMetrics(viewPortBox, svgViewBox, preserveAspectRatio.align, preserveAspectRatio.meetOrSlice);
                     

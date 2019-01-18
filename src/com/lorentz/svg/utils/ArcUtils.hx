@@ -98,7 +98,7 @@ class ArcUtils
         angleExtent %= 360;
         angleStart %= 360;
         
-        return cast(({
+        return {
                     x : LastPointX,
                     y : LastPointY,
                     startAngle : angleStart,
@@ -108,7 +108,7 @@ class ArcUtils
                     xAxisRotation : xAxisRotation,
                     cx : cx,
                     cy : cy
-                }), Object);
+                };
     }
     
     public static function convertToCurves(x : Float, y : Float, startAngle : Float, arcAngle : Float, xRadius : Float, yRadius : Float, xAxisRotation : Float = 0) : Array<Dynamic>
@@ -144,7 +144,7 @@ class ArcUtils
             var y1 : Float;
             
             // Loop for drawing arc segments
-            for (i in 0...segs)
+            for (i in 0...Std.int(segs))
             {
                 angle += theta;
                 

@@ -34,7 +34,7 @@ class StringUtil
 		*/
     public static function ltrim(input : String, char : String = " ") : String
     {
-        var size : Float = input.length;
+        var size : Int = input.length;
         for (i in 0...size)
         {
             if (input.charAt(i) != char)
@@ -58,8 +58,8 @@ class StringUtil
 		*/
     public static function rtrim(input : String, char : String = " ") : String
     {
-        var size : Float = input.length;
-        var i : Float = size;
+        var size : Int = input.length;
+        var i : Int = size;
         while (i > 0)
         {
             if (input.charAt(i - 1) != char)

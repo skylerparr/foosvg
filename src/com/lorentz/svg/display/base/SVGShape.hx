@@ -122,13 +122,16 @@ class SVGShape extends SVGGraphicsElement
     
     private function getFlashWinding() : String
     {
-        var winding : String = finalStyle.getPropertyValue("fill-rule") || "nonzero";
+        var winding : String = finalStyle.getPropertyValue("fill-rule");
+        if(winding == null) {
+            winding = "nonzero";
+        }
         switch (winding.toLowerCase())
         {
-            case GraphicsPathWinding.EVEN_ODD.toLowerCase():
+            case "evenodd":
                 return GraphicsPathWinding.EVEN_ODD;
             
-            case GraphicsPathWinding.NON_ZERO.toLowerCase():
+            case "nonzero":
                 return GraphicsPathWinding.NON_ZERO;
         }
         return GraphicsPathWinding.NON_ZERO;
@@ -148,7 +151,10 @@ class SVGShape extends SVGGraphicsElement
             {
                 var markerStyle : String = "marker-" + markerPlace.type;
                 
-                var markerLink : String = finalStyle.getPropertyValue(markerStyle) || finalStyle.getPropertyValue("marker");
+                var markerLink : String = finalStyle.getPropertyValue(markerStyle);
+                if(markerLink == null) {
+                    markerLink = finalStyle.getPropertyValue("marker");
+                }
                 
                 if (markerLink == null)
                 {

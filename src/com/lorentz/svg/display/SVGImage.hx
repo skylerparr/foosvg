@@ -177,7 +177,8 @@ class SVGImage extends SVGElement implements ISVGViewPort
             
             if (svgHref != null && svgHref != "")
             {
-                if (svgHref.match(new as3hx.Compat.Regex('^data:[a-z\\/]*;base64,', "")))
+                var ereg: EReg = new EReg('^data:[a-z\\/]*;base64,', "");
+                if (ereg.match(svgHref))
                 {
                     loadBase64(svgHref);
                     beginASyncValidation("loadImage");

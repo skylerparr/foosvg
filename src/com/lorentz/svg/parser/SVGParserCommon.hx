@@ -19,8 +19,16 @@ class SVGParserCommon {
     public static function parsePathData(input: String): Array<com.lorentz.svg.data.path.SVGPathCommand> {
         var commands: Array<com.lorentz.svg.data.path.SVGPathCommand> = new Array<com.lorentz.svg.data.path.SVGPathCommand>();
 
-        for (commandString/* AS3HX WARNING could not determine type for var: commandString exp: ECall(EField(EIdent(input),match),[ERegexp([A-DF-Za-df-z][^A-Za-df-z]*,g)]) type: null */ in input.match(new as3hx.Compat.Regex('[A-DF-Za-df-z][^A-Za-df-z]*', "g"))) {
+        var ereg = ~/[A-DF-Za-df-z][^A-Za-df-z]*/g;
+        var matches: Array<String> = [];
+        ereg.map(input, function(reg: EReg): String {
+            matches.push(reg.matched(0));
+            return "";
+        });
+
+        for (commandString in matches) {
             var type: String = commandString.charAt(0);
+
             var args: Array<String> = SVGParserCommon.splitNumericArgs(commandString.substr(1));
 
             if (type == "Z" || type == "z") {
@@ -58,7 +66,8 @@ class SVGParserCommon {
                         commands.push(new SVGCurveToCubicSmoothCommand(type == "S", as3hx.Compat.parseFloat(args[a++]), as3hx.Compat.parseFloat(args[a++]), as3hx.Compat.parseFloat(args[a++]), as3hx.Compat.parseFloat(args[a++])));
                     case "A", "a":
                         commands.push(new SVGArcToCommand(type == "A", as3hx.Compat.parseFloat(args[a++]), as3hx.Compat.parseFloat(args[a++]), as3hx.Compat.parseFloat(args[a++]), args[a++] != "0", args[a++] != "0", as3hx.Compat.parseFloat(args[a++]), as3hx.Compat.parseFloat(args[a++])));
-                    default:trace("Invalid PathCommand type: " + type);
+                    default:
+                        trace("Invalid PathCommand type: " + type);
                         a = args.length;
                 }
             }
@@ -70,8 +79,13 @@ class SVGParserCommon {
     public static function splitNumericArgs(input: String): Array<String> {
         var returnData: Array<String> = new Array<String>();
 
-        var matchedNumbers: Array<Dynamic> = input.match(new as3hx.Compat.Regex('(?:\\+|-)?(?:(?:\\d*\\.\\d+)|(?:\\d+))(?:e(?:\\+|-)?\\d+)?', "g"));
-        for (numberString in matchedNumbers) {
+        var ereg: EReg = ~/(?:\+|-)?(?:(?:\d*\.\d+)|(?:\d+))(?:e(?:\+|-)?\d+)?/g;
+        var matches: Array<String> = [];
+        ereg.map(input, function(reg: EReg): String {
+            matches.push(reg.matched(0));
+            return "";
+        });
+        for (numberString in matches) {
             returnData.push(numberString);
         }
 
@@ -83,14 +97,16 @@ class SVGParserCommon {
             return new Matrix();
         }
 
-        var transformations: Array<Dynamic> = m.match(new as3hx.Compat.Regex('(\\w+?\\s*\\([^)]*\\))', "g"));
+        var ereg: EReg = new EReg('(\\w+?\\s*\\([^)]*\\))', "g");
+        var transformations: Array<Dynamic> = ereg.split(m);
 
         var mat: Matrix = new Matrix();
 
         if (Std.is(transformations, Array)) {
             var i: Int = as3hx.Compat.parseInt(transformations.length - 1);
             while (i >= 0) {
-                var parts: Array<Dynamic> = new as3hx.Compat.Regex('(\\w+?)\\s*\\(([^)]*)\\)', "").exec(transformations[i]);
+                var ereg: EReg = new EReg('(\\w+?)\\s*\\(([^)]*)\\)', "");
+                var parts: Array<Dynamic> = ereg.split(transformations[i]);
                 if (Std.is(parts, Array)) {
                     var name: String = parts[1].toLowerCase();
                     var args: Array<String> = splitNumericArgs(parts[2]);
@@ -135,17 +151,27 @@ class SVGParserCommon {
         if (viewBox == null || viewBox == "") {
             return null;
         }
-        var params: Dynamic = viewBox.split(new as3hx.Compat.Regex('\\s', ""));
+        var ereg: EReg = new EReg('\\s', "");
+        var params: Dynamic = ereg.split(viewBox);
         return new Rectangle(Reflect.field(params, Std.string(0)), Reflect.field(params, Std.string(1)), Reflect.field(params, Std.string(2)), Reflect.field(params, Std.string(3)));
     }
 
     public static function parsePreserveAspectRatio(text: String): Dynamic {
         var parts: Array<Dynamic> = new as3hx.Compat.Regex('(?:(defer)\\s+)?(\\w*)(?:\\s+(meet|slice))?', "gi").exec(text.toLowerCase());
 
+        var parts2 = parts[2];
+        if(parts2 == null) {
+            parts2 = "xmidymid";
+        }
+        var parts3 = parts[3];
+        if(parts3 == null) {
+            parts3 = "meet";
+        }
+
         return {
             defer : parts[1] != null,
-            align : parts[2] || "xmidymid",
-            meetOrSlice : parts[3] || "meet"
+            align : parts2,
+            meetOrSlice : parts3
         };
     }
 

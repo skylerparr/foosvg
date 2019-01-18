@@ -1,19 +1,20 @@
 package com.lorentz.svg.data.gradients;
 
+import flash.display.GradientType;
 import com.lorentz.svg.utils.ICloneable;
 import flash.geom.Matrix;
 
 class SVGGradient implements ICloneable
 {
-    public var type(get, never) : String;
+    public var type(get, never) : GradientType;
 
     public function new(type : String)
     {
         _type = type;
     }
     
-    private var _type : String;
-    private function get_type() : String
+    private var _type : GradientType;
+    private function get_type() : GradientType
     {
         return _type;
     }
@@ -22,9 +23,9 @@ class SVGGradient implements ICloneable
     public var transform : Matrix;
     public var spreadMethod : String;
     
-    public var colors : Array<Dynamic>;
-    public var alphas : Array<Dynamic>;
-    public var ratios : Array<Dynamic>;
+    public var colors : Array<UInt>;
+    public var alphas : Array<Float>;
+    public var ratios : Array<Int>;
     
     public function clone() : Dynamic
     {

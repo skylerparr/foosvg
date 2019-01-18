@@ -6,7 +6,7 @@ import flash.filters.ColorMatrixFilter;
 class SVGColorMatrix implements ISVGFilter
 {
     public var type : String;
-    public var values : Array<Dynamic>;
+    public var values : Array<Float>;
     
     public function getFlashFilter() : BitmapFilter
     {

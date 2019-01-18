@@ -161,7 +161,7 @@ Bezier approximation methods used in svg import.
 
         var s: Point = MathUtils.intersect2Lines(a, b, c, d);
 
-        if (s != null && !Math.isNaN(s.x) && !Math.isNaN(s.y) && s.length != Infinity) {
+        if (s != null && !Math.isNaN(s.x) && !Math.isNaN(s.y) && s.length != Math.POSITIVE_INFINITY) {
 
             // find distance between the midpoints{
 

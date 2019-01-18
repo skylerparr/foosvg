@@ -49,7 +49,8 @@ class TextUtils
         
         for (characterType in bidiCharacterTypes)
         {
-            for (range/* AS3HX WARNING could not determine type for var: range exp: EField(EIdent(characterType),ranges) type: null */ in characterType.ranges)
+            var ranges: Array<Dynamic> = characterType.ranges;
+            for (range in ranges)
             {
                 if (range.length == 1)
                 {

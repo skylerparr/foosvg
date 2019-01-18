@@ -167,13 +167,15 @@ class DashedDrawer implements IDrawer {
             return;
         }
 
+        var lineLength: Float;
+        var lengthToDraw: Float;
         do {
             var dx: Float = x - penX;
             var dy: Float = y - penY;
 
-            var lineLength: Float = this.lineLength(dx, dy);
+            lineLength = this.lineLength(dx, dy);
 
-            var lengthToDraw: Float = Math.min(lineLength, getDashLength() - _dashDrawnLength);
+            lengthToDraw = Math.min(lineLength, getDashLength() - _dashDrawnLength);
 
             var newX: Float;
             var newY: Float;
@@ -213,10 +215,12 @@ class DashedDrawer implements IDrawer {
             return;
         }
 
+        var lengthToDraw: Float;
+        var curveLength: Float;
         do {
-            var curveLength: Float = curveLength(penX, penY, cx, cy, x, y, _curveAccuracy);
+            curveLength = this.curveLength(penX, penY, cx, cy, x, y, _curveAccuracy);
 
-            var lengthToDraw: Float = Math.min(curveLength, getDashLength() - _dashDrawnLength);
+            lengthToDraw = Math.min(curveLength, getDashLength() - _dashDrawnLength);
 
             var newCX: Float;
             var newCY: Float;
@@ -229,149 +233,133 @@ class DashedDrawer implements IDrawer {
 
                 var splitCurveFactor: Float = lengthToDraw / curveLength;
 
-            var curveToDraw: Array<Dynamic> = MathUtils.quadCurveSliceUpTo(penX, penY, cx, cy, x, y, splitCurveFactor);
+                var curveToDraw: Array<Dynamic> = MathUtils.quadCurveSliceUpTo(penX, penY, cx, cy, x, y, splitCurveFactor);
 
-            newCX = curveToDraw[2];newCY = curveToDraw[3];
-            newX = curveToDraw[4];newY = curveToDraw[5];
+                newCX = curveToDraw[2];newCY = curveToDraw[3];
+                newX = curveToDraw[4];newY = curveToDraw[5];
 
-            var otherCurve: Array<Dynamic> = MathUtils.quadCurveSliceFrom(penX, penY, cx, cy, x, y, splitCurveFactor);
+                var otherCurve: Array<Dynamic> = MathUtils.quadCurveSliceFrom(penX, penY, cx, cy, x, y, splitCurveFactor);
 
-            //Update variables of the next curve
-            cx = otherCurve[2];cy = otherCurve[3];
+                //Update variables of the next curve
+                cx = otherCurve[2];cy = otherCurve[3];
+            }
+            else {
+                newCX = cx;newCY = cy;
+                newX = x;newY = y;
+            }
+
+            if (isLine) {
+                _baseDrawer.curveTo(newCX, newCY, newX, newY);
+            }
+            else {
+                _baseDrawer.moveTo(newX, newY);
+            }
+
+            moveInDashArray(lengthToDraw);
         }
-        else
-        {
-        newCX = cx;newCY = cy;
-        newX = x;newY = y;
-        }
-
-        if (isLine)
-        {
-        _baseDrawer.curveTo(newCX, newCY, newX, newY);
-        }
-        else
-        {
-        _baseDrawer.moveTo(newX, newY);
-        }
-
-        moveInDashArray(lengthToDraw);
+        while (lengthToDraw < curveLength);
     }
-    while ((lengthToDraw < curveLength));
-}
 
-public function cubicCurveTo(cx1 : Float, cy1 : Float, cx2 : Float, cy2 : Float, x : Float, y : Float) : Void
-{
-if (_alignToCorners && !_isAligned)
-{
-initDashAlign(cubicCurveLength(penX, penY, cx1, cy1, cx2, cy2, x, y, _curveAccuracy));
-cubicCurveTo(cx1, cy1, cx2, cy2, x, y);
-endDashAlign();
-return;
-}
+    public function cubicCurveTo(cx1: Float, cy1: Float, cx2: Float, cy2: Float, x: Float, y: Float): Void {
+        if (_alignToCorners && !_isAligned) {
+            initDashAlign(cubicCurveLength(penX, penY, cx1, cy1, cx2, cy2, x, y, _curveAccuracy));
+            cubicCurveTo(cx1, cy1, cx2, cy2, x, y);
+            endDashAlign();
+            return;
+        }
 
-var bezier : Bezier = new Bezier(new Point(penX, penY), new Point(cx1, cy1), new Point(cx2, cy2), new Point(x, y));
+        var bezier: Bezier = new Bezier(new Point(penX, penY), new Point(cx1, cy1), new Point(cx2, cy2), new Point(x, y));
 
-for (quadP/* AS3HX WARNING could not determine type for var: quadP exp: EField(EIdent(bezier),QPts) type: null */ in bezier.QPts)
-{
-curveTo(quadP.c.x, quadP.c.y, quadP.p.x, quadP.p.y);
-}
-}
+        for (quadP in bezier.QPts) {
+            curveTo(quadP.c.x, quadP.c.y, quadP.p.x, quadP.p.y);
+        }
+    }
 
-public function arcTo(rx : Float, ry : Float, angle : Float, largeArcFlag : Bool, sweepFlag : Bool, x : Float, y : Float) : Void
-{
-if (_alignToCorners && !_isAligned)
-{
-initDashAlign(arcLength(penX, penY, rx, ry, angle, largeArcFlag, sweepFlag, x, y, _curveAccuracy));
-arcTo(rx, ry, angle, largeArcFlag, sweepFlag, x, y);
-endDashAlign();
-return;
-}
+    public function arcTo(rx: Float, ry: Float, angle: Float, largeArcFlag: Bool, sweepFlag: Bool, x: Float, y: Float): Void {
+        if (_alignToCorners && !_isAligned) {
+            initDashAlign(arcLength(penX, penY, rx, ry, angle, largeArcFlag, sweepFlag, x, y, _curveAccuracy));
+            arcTo(rx, ry, angle, largeArcFlag, sweepFlag, x, y);
+            endDashAlign();
+            return;
+        }
 
-var ellipticalArc : Dynamic = ArcUtils.computeSvgArc(rx, ry, angle, largeArcFlag, sweepFlag, x, y, penX, penY);
+        var ellipticalArc: Dynamic = ArcUtils.computeSvgArc(rx, ry, angle, largeArcFlag, sweepFlag, x, y, penX, penY);
 
-var curves : Array<Dynamic>= ArcUtils.convertToCurves(ellipticalArc.cx, ellipticalArc.cy, ellipticalArc.startAngle, ellipticalArc.arc, ellipticalArc.radius, ellipticalArc.yRadius, ellipticalArc.xAxisRotation);
+        var curves: Array<Dynamic> = ArcUtils.convertToCurves(ellipticalArc.cx, ellipticalArc.cy, ellipticalArc.startAngle, ellipticalArc.arc, ellipticalArc.radius, ellipticalArc.yRadius, ellipticalArc.xAxisRotation);
 
-var i : Int = 0;
-while (i < curves.length)
-{
-curveTo(curves[i].c.x, curves[i].c.y, curves[i].p.x, curves[i].p.y);
-i++;
-}
-}
+        var i: Int = 0;
+        while (i < curves.length) {
+            curveTo(curves[i].c.x, curves[i].c.y, curves[i].p.x, curves[i].p.y);
+            i++;
+        }
+    }
 
-private function lineLength(sx : Float, sy : Float, ex : Float = 0, ey : Float = 0) : Float
-{
-if (arguments.length == 2)
-{
-return Math.sqrt(sx * sx + sy * sy);
-}
-var dx : Float = ex - sx;
-var dy : Float = ey - sy;
-return Math.sqrt(dx * dx + dy * dy);
-}
+    private function lineLength(sx: Float, sy: Float, ex: Float = null, ey: Float = null): Float {
+        if (ex == null && ey == null) {
+            return Math.sqrt(sx * sx + sy * sy);
+        }
+        var dx: Float = ex - sx;
+        var dy: Float = ey - sy;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
 
-private function curveLength(sx : Float, sy : Float, cx : Float, cy : Float, ex : Float, ey : Float, accuracy : Float) : Float
-{
-var total : Float = 0;
-var tx : Float = sx;
-var ty : Float = sy;
-var px : Float;
-var py : Float;
-var t : Float;
-var it : Float;
-var a : Float;
-var b : Float;
-var c : Float;
-var n : Float = (accuracy != 0 && !Math.isNaN(accuracy)) ? accuracy : _curveAccuracy;
-for (i in 1...n + 1)
-{
-t = i / n;
-it = 1 - t;
-a = it * it;b = 2 * t * it;c = t * t;
-px = a * sx + b * cx + c * ex;
-py = a * sy + b * cy + c * ey;
-total += lineLength(tx, ty, px, py);
-tx = px;
-ty = py;
-}
-return total;
-}
+    private function curveLength(sx: Float, sy: Float, cx: Float, cy: Float, ex: Float, ey: Float, accuracy: Float): Float {
+        var total: Float = 0;
+        var tx: Float = sx;
+        var ty: Float = sy;
+        var px: Float;
+        var py: Float;
+        var t: Float;
+        var it: Float;
+        var a: Float;
+        var b: Float;
+        var c: Float;
+        var n: Float = (accuracy != 0 && !Math.isNaN(accuracy)) ? accuracy : _curveAccuracy;
+        for (i in 1...Std.int(n) + 1) {
+            t = i / n;
+            it = 1 - t;
+            a = it * it;
+            b = 2 * t * it;c = t * t;
+            px = a * sx + b * cx + c * ex;
+            py = a * sy + b * cy + c * ey;
+            total += lineLength(tx, ty, px, py);
+            tx = px;
+            ty = py;
+        }
+        return total;
+    }
 
-private function cubicCurveLength(sx : Float, sy : Float, cx1 : Float, cy1 : Float, cx2 : Float, cy2 : Float, x : Float, y : Float, accuracy : Float) : Float
-{
-var bezier : Bezier = new Bezier(new Point(sx, sy), new Point(cx1, cy1), new Point(cx2, cy2), new Point(x, y));
+    private function cubicCurveLength(sx: Float, sy: Float, cx1: Float, cy1: Float, cx2: Float, cy2: Float, x: Float, y: Float, accuracy: Float): Float {
+        var bezier: Bezier = new Bezier(new Point(sx, sy), new Point(cx1, cy1), new Point(cx2, cy2), new Point(x, y));
 
-var length : Float = 0;
-var curX : Float = sx;
-var curY : Float = sy;
+        var length: Float = 0;
+        var curX: Float = sx;
+        var curY: Float = sy;
 
-for (quadP/* AS3HX WARNING could not determine type for var: quadP exp: EField(EIdent(bezier),QPts) type: null */ in bezier.QPts)
-{
-length += curveLength(curX, curY, quadP.c.x, quadP.c.y, quadP.p.x, quadP.p.y, accuracy);
-curX = quadP.p.x;curY = quadP.p.y;
-}
+        for (quadP/* AS3HX WARNING could not determine type for var: quadP exp: EField(EIdent(bezier),QPts) type: null */ in bezier.QPts) {
+            length += curveLength(curX, curY, quadP.c.x, quadP.c.y, quadP.p.x, quadP.p.y, accuracy);
+            curX = quadP.p.x;curY = quadP.p.y;
+        }
 
-return length;
-}
+        return length;
+    }
 
-private function arcLength(sx : Float, sy : Float, rx : Float, ry : Float, angle : Float, largeArcFlag : Bool, sweepFlag : Bool, x : Float, y : Float, accuracy : Float) : Float
-{
-var ellipticalArc : Dynamic = ArcUtils.computeSvgArc(rx, ry, angle, largeArcFlag, sweepFlag, x, y, sx, sy);
+    private function arcLength(sx: Float, sy: Float, rx: Float, ry: Float, angle: Float, largeArcFlag: Bool, sweepFlag: Bool, x: Float, y: Float, accuracy: Float): Float {
+        var ellipticalArc: Dynamic = ArcUtils.computeSvgArc(rx, ry, angle, largeArcFlag, sweepFlag, x, y, sx, sy);
 
-var curves : Array<Dynamic>= ArcUtils.convertToCurves(ellipticalArc.cx, ellipticalArc.cy, ellipticalArc.startAngle, ellipticalArc.arc, ellipticalArc.radius, ellipticalArc.yRadius, ellipticalArc.xAxisRotation);
+        var curves: Array<Dynamic> = ArcUtils.convertToCurves(ellipticalArc.cx, ellipticalArc.cy, ellipticalArc.startAngle, ellipticalArc.arc, ellipticalArc.radius, ellipticalArc.yRadius, ellipticalArc.xAxisRotation);
 
-var length : Float = 0;
-var curX : Float = sx;
-var curY : Float = sy;
+        var length: Float = 0;
+        var curX: Float = sx;
+        var curY: Float = sy;
 
-var i : Int = 0;
-while (i < curves.length)
-{
-length += curveLength(curX, curY, curves[i].c.x, curves[i].c.y, curves[i].p.x, curves[i].p.y, accuracy);
-curX = curves[i].p.x;curY = curves[i].p.y;
-i++;
-}
+        var i: Int = 0;
+        while (i < curves.length) {
+            length += curveLength(curX, curY, curves[i].c.x, curves[i].c.y, curves[i].p.x, curves[i].p.y, accuracy);
+            curX = curves[i].p.x;curY = curves[i].p.y;
+            i++;
+        }
 
-return length;
-}
+        return length;
+    }
 }

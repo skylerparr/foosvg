@@ -17,27 +17,29 @@ import flash.geom.Point;
     Point of intersection
     */
     public static function intersect2Lines(p1: Point, p2: Point, p3: Point, p4: Point): Point {
-        var x1: Float = p1.x;var y1: Float = p1.y;
-        var x4: Float = p4.x;var y4: Float = p4.y;
+        var x1: Float = p1.x;
+        var y1: Float = p1.y;
+        var x4: Float = p4.x;
+        var y4: Float = p4.y;
 
         var dx1: Float = p2.x - x1;
         var dx2: Float = p3.x - x4;
 
-        if (!dx1 && !dx2) {
-            return null;
-        } // new Point(NaN, NaN);
+//        if (dx1 == null && dx2 == null) {
+//            return null;
+//        } // new Point(NaN, NaN);
 
         var m1: Float = (p2.y - y1) / dx1;
         var m2: Float = (p3.y - y4) / dx2;
 
-        if (!dx1) {
-
-            return new Point(x1, m2 * (x1 - x4) + y4);
-        }
-        else if (!dx2) {
-
-            return new Point(x4, m1 * (x4 - x1) + y1);
-        }
+//        if (dx1 == null) {
+//
+//            return new Point(x1, m2 * (x1 - x4) + y4);
+//        }
+//        else if (dx2 == null) {
+//
+//            return new Point(x4, m1 * (x4 - x1) + y1);
+//        }
         var xInt: Float = (-m2 * x4 + y4 + m1 * x1 - y1) / (m1 - m2);
         var yInt: Float = m1 * (xInt - x1) + y1;
 
