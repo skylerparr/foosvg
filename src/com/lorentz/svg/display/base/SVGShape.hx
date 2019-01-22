@@ -70,7 +70,7 @@ class SVGShape extends SVGGraphicsElement
     private function drawWithAppropriateMethod() : Void
     {
         var captureMarkers : Bool = hasMarkers && _markersPlaces == null;
-        
+
         if (!captureMarkers && hasDrawDirectlyToGraphics)
         {
             drawDirectlyToGraphics(content.graphics);
@@ -90,7 +90,7 @@ class SVGShape extends SVGGraphicsElement
             {
                 drawToDrawer(graphicsPathDrawer);
             }
-            
+
             content.graphics.drawPath(graphicsPathDrawer.commands, graphicsPathDrawer.pathData, getFlashWinding());
         }
     }
@@ -144,7 +144,7 @@ class SVGShape extends SVGGraphicsElement
             detachElement(oldMarker);
             content.removeChild(oldMarker);
         }
-        
+
         if (_markersPlaces != null)
         {
             for (markerPlace in _markersPlaces)

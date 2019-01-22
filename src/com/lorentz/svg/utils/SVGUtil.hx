@@ -124,12 +124,13 @@ class SVGUtil
             styleDeclaration = new StyleDeclaration();
         }
         
-        for (xmlStyle in presentationStyles)
+        for (styleName in presentationStyles)
         {
-            var styleName: String = x.get(xmlStyle);
-            if (styleName != null)
+            var xmlStyle: String = x.get(styleName);
+
+            if (xmlStyle != null)
             {
-                styleDeclaration.setProperty(styleName, styleName);
+                styleDeclaration.setProperty(styleName, xmlStyle);
             }
         }
         

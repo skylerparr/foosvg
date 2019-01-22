@@ -66,9 +66,12 @@ class AsyncSVGParser extends EventDispatcher {
         parseFilters(_svg);
 
         _visitQueue = new Array<VisitDefinition>();
+        trace("adding svg to visit queue");
         _visitQueue.push(new VisitDefinition(_svg, function(obj: SVGElement): Void {
+            trace("adding elelemt : " + obj);
             _target.addElement(obj);
         }));
+        trace("queue length " + _visitQueue.length);
 
         _process = new Process(null, executeLoop, parseComplete);
         if (synchronous) {
@@ -85,14 +88,17 @@ class AsyncSVGParser extends EventDispatcher {
     }
 
     private function executeLoop(): Int {
-                for (v in _visitQueue) {
-            var x: Xml = v.node.x;
-            if(x.nodeType == XmlType.Document) {
-                x = x.firstElement();
-            }
-                    }
+//        for (v in _visitQueue) {
+//            var x: Xml = v.node.x;
+//            if (x.nodeType == XmlType.Document) {
+//                x = x.firstElement();
+//            }
+//        }
 
-        Reflect.callMethod(_visitQueue, _visitQueue.unshift, visit(_visitQueue.shift()));
+        trace("execute loop " + _visitQueue.length);
+        var obj = _visitQueue.shift();
+        trace(obj);
+        Reflect.callMethod(_visitQueue, _visitQueue.unshift, visit(obj));
         return (_visitQueue.length == 0) ? Process.COMPLETE : Process.CONTINUE;
     }
 
@@ -107,10 +113,10 @@ class AsyncSVGParser extends EventDispatcher {
 
         var elt: FastXML = visitDefinition.node;
         var x: Xml = elt.x;
-        if(x.nodeType == XmlType.Document) {
+        if (x.nodeType == XmlType.Document) {
             x = x.firstElement();
         }
-        
+
         var obj: Dynamic = null;
 
         if (x.nodeType == XmlType.CData) {
@@ -118,8 +124,9 @@ class AsyncSVGParser extends EventDispatcher {
         }
         else if (x.nodeType == XmlType.Element) {
             var localName: String = x.nodeName;
-
-                                    switch (localName)
+            trace("localName " + localName);
+            trace("visitQueue Length " + _visitQueue.length);
+            switch (localName)
             {
                 case "svg":obj = visitSvg(elt);
                 case "defs":visitDefs(elt, childVisits);
@@ -197,7 +204,7 @@ class AsyncSVGParser extends EventDispatcher {
             if (Std.is(element, SVGContainer)) {
                 var container: SVGContainer = try cast(element, SVGContainer) catch (e: Dynamic) null;
                 for (childElt in elt.descendants()) {
-                                        childVisits.push(new VisitDefinition(childElt, function(child: SVGElement): Void {
+                    childVisits.push(new VisitDefinition(childElt, function(child: SVGElement): Void {
                         if (child != null) {
                             container.addElement(child);
                         }
@@ -210,7 +217,7 @@ class AsyncSVGParser extends EventDispatcher {
             visitDefinition.onComplete(obj);
         }
 
-                return childVisits;
+        return childVisits;
     }
 
     private function visitSvg(elt: FastXML): SVG {
@@ -226,11 +233,11 @@ class AsyncSVGParser extends EventDispatcher {
 
     private function getAttribute(elt: FastXML, att: String, defaultt = null): String {
         var x: Xml = elt.x;
-        if(x.nodeType == XmlType.Document) {
+        if (x.nodeType == XmlType.Document) {
             x = x.firstElement();
         }
         var retVal: String = x.get(att);
-        if(retVal == null) {
+        if (retVal == null) {
             retVal = defaultt;
         }
         return retVal;
@@ -239,12 +246,12 @@ class AsyncSVGParser extends EventDispatcher {
     private function visitDefs(elt: FastXML, childVisits: Array<VisitDefinition>): Void {
         //for each(var childElt:XML in elt.*) { {
         for (childElt in elt.elements) {
-                        childVisits.push(new VisitDefinition(childElt));
+            childVisits.push(new VisitDefinition(childElt));
         }
     }
 
     private function visitRect(elt: FastXML): SVGRect {
-        
+
         var obj: SVGRect = new SVGRect();
 
         obj.svgX = getAttribute(elt, 'x');
@@ -546,7 +553,6 @@ class AsyncSVGParser extends EventDispatcher {
             }
         }
 
-
         var gradientUnits: String = x.get("gradientUnits");
         if (gradientUnits != null) {
             grad.gradientUnits = gradientUnits;
@@ -668,7 +674,6 @@ class AsyncSVGParser extends EventDispatcher {
 
         //for each(var stop:XML in xml_grad.*::stop){
         for (stop in svg.descendants("stop")) {
-
             var x: Xml = stop.x;
             //todo:{
 

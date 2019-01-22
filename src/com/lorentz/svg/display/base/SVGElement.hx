@@ -1,5 +1,6 @@
 package com.lorentz.svg.display.base;
 
+import flash.display.GradientType;
 import flash.filters.BitmapFilter;
 import flash.errors.Error;
 import haxe.Constraints.Function;
@@ -53,6 +54,7 @@ class SVGElement extends Sprite implements ICloneable {
     public var viewPortHeight(get, never): Float;
 
     private var content: Sprite;
+    private static var _staticId: Int;
 
     private var _mask: DisplayObject;
     private static var _maskRgbToLuminanceFilter: ColorMatrixFilter = new ColorMatrixFilter([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.2125, 0.7154, 0.0721, 0, 0]);
@@ -61,6 +63,7 @@ class SVGElement extends Sprite implements ICloneable {
 
     private var _type: String;
     private var _id: String;
+    private var memberId: Int;
 
     private var _svgClipPathChanged: Bool = false;
     private var _svgMaskChanged: Bool = false;
@@ -89,6 +92,7 @@ class SVGElement extends Sprite implements ICloneable {
     private var _viewPortHeight: Float;
 
     public function new(tagName: String) {
+        memberId = ++_staticId;
         super();
         _type = tagName;
         initialize();
@@ -239,15 +243,21 @@ class SVGElement extends Sprite implements ICloneable {
     }
 
     private function setParentElement(value: SVGElement): Void {
+        trace("_parentELement != value " + (_parentElement != value));
         if (_parentElement != value) {
             if (_parentElement != null) {
+                trace("parent numInvalid " + _parentElement.numInvalidElements);
+                trace("current numInvalid " + _numInvalidElements);
                 _parentElement.numInvalidElements -= _numInvalidElements;
                 _parentElement.numRunningAsyncValidations -= _numRunningAsyncValidations;
             }
 
             _parentElement = value;
 
+            trace("parentElement null? " + _parentElement);
             if (_parentElement != null) {
+                trace("parent numInvalid " + _parentElement.numInvalidElements);
+                trace("current numInvalid " + _numInvalidElements);
                 _parentElement.numInvalidElements += _numInvalidElements;
                 _parentElement.numRunningAsyncValidations += _numRunningAsyncValidations;
             }
@@ -306,16 +316,25 @@ class SVGElement extends Sprite implements ICloneable {
     }
 
     private function set_numInvalidElements(value: Int): Int {
+        trace("setting num invalid elements " + _numInvalidElements);
+        trace("setting num invalid elements value " + value);
         var d: Int = as3hx.Compat.parseInt(value - _numInvalidElements);
 
         _numInvalidElements = value;
 
+        trace("_parentElement null? " + _parentElement);
         if (_parentElement != null) {
+            trace("_parentElement numValidElements " + _parentElement.numInvalidElements);
+            trace("d " + d);
             _parentElement.numInvalidElements += d;
         }
 
+        trace("_numInvalidElements " + _numInvalidElements);
+        trace("d " + d);
         if (_numInvalidElements == 0 && d != 0) {
+            trace("has sync validated: " + hasEventListener(SVGEvent.SYNC_VALIDATED));
             if (hasEventListener(SVGEvent.SYNC_VALIDATED)) {
+                trace("dispatching sync validated event");
                 dispatchEvent(new SVGEvent(SVGEvent.SYNC_VALIDATED));
             }
             onPartialyValidated();
@@ -346,14 +365,20 @@ class SVGElement extends Sprite implements ICloneable {
     }
 
     private function onPartialyValidated(): Void {
+        trace("on partially validated");
         if (Std.is(this, ISVGViewPort) && document != null) {
+            trace("adusting viewport");
             adjustContentToViewPort();
         }
 
+        trace("validation in progress " + validationInProgress);
         if (!validationInProgress) {
+            trace("has validated listener " + hasEventListener(SVGEvent.VALIDATED));
             if (hasEventListener(SVGEvent.VALIDATED)) {
+                trace("dispatching validated event");
                 dispatchEvent(new SVGEvent(SVGEvent.VALIDATED));
             }
+            trace("on validated");
             onValidated();
         }
     }
@@ -362,7 +387,9 @@ class SVGElement extends Sprite implements ICloneable {
     }
 
     private function _invalidate(): Void {
+        trace("invalidate flag " + _invalidFlag + " : " + memberId);
         if (!_invalidFlag) {
+            trace("&&&&&& setting invalid flag to true &&&&& " + memberId);
             _invalidFlag = true;
 
             numInvalidElements += 1;
@@ -403,11 +430,15 @@ class SVGElement extends Sprite implements ICloneable {
             commitProperties();
         }
 
+        trace("numInvalidElements " + numInvalidElements);
+        trace("****invalidFlag**** " + _invalidFlag);
         if (_invalidFlag) {
+            trace("SETTING INVALID FLAG TO FALSE");
             _invalidFlag = false;
             numInvalidElements -= 1;
         }
 
+        trace(numInvalidElements);
         if (numInvalidElements > 0) {
             for (element in _elementsAttached) {
                 element.validate();
@@ -548,6 +579,7 @@ class SVGElement extends Sprite implements ICloneable {
 
     private function commitProperties(): Void {
         _invalidPropertiesFlag = false;
+
 
         if (_invalidTransformFlag) {
             _invalidTransformFlag = false;

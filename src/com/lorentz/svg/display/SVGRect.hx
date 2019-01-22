@@ -128,7 +128,8 @@ class SVGRect extends SVGShape
         
         _rxUnits = 0;
         _ryUnits = 0;
-        
+
+
         if (svgRx != null)
         {
             _rxUnits = getViewPortUserUnit(svgRx, SVGUtil.WIDTH);

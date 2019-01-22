@@ -117,6 +117,7 @@ class SVGGraphicsElement extends SVGElement {
                 var id: String = SVGUtil.extractUrlId(fill);
 
                 var grad: SVGGradient = try cast(document.getDefinition(id), SVGGradient) catch (e: Dynamic) null;
+
                 if (grad != null) {
                     var _sw0_ = (grad.type);
 

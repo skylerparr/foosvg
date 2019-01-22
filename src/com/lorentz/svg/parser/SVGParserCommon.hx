@@ -97,16 +97,26 @@ class SVGParserCommon {
             return new Matrix();
         }
 
-        var ereg: EReg = new EReg('(\\w+?\\s*\\([^)]*\\))', "g");
-        var transformations: Array<Dynamic> = ereg.split(m);
+        var ereg: EReg = ~/(\\w+?\\s*\\([^)]*\\))/g;
+        var matches: Array<String> = [];
+        ereg.map(m, function(reg: EReg): String {
+            matches.push(reg.matched(0));
+            return "";
+        });
+        var transformations: Array<String> = matches;//ereg.split(m);
 
         var mat: Matrix = new Matrix();
 
         if (Std.is(transformations, Array)) {
             var i: Int = as3hx.Compat.parseInt(transformations.length - 1);
             while (i >= 0) {
-                var ereg: EReg = new EReg('(\\w+?)\\s*\\(([^)]*)\\)', "");
-                var parts: Array<Dynamic> = ereg.split(transformations[i]);
+                var ereg: EReg = ~/(\\w+?)\\s*\\(([^)]*)\\)/;
+                var matches: Array<String> = [];
+                ereg.map(transformations[i], function(reg: EReg): String {
+                    matches.push(reg.matched(0));
+                    return "";
+                });
+                var parts: Array<Dynamic> = matches;
                 if (Std.is(parts, Array)) {
                     var name: String = parts[1].toLowerCase();
                     var args: Array<String> = splitNumericArgs(parts[2]);
