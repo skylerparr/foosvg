@@ -44,6 +44,7 @@ import flash.display.GradientType;
 import flash.display.SpreadMethod;
 import flash.events.Event;
 import flash.events.EventDispatcher;
+import openfl.display.Sprite;
 
 @:meta(Event(name = "complete", type = "flash.events.Event"))
 
@@ -66,12 +67,9 @@ class AsyncSVGParser extends EventDispatcher {
         parseFilters(_svg);
 
         _visitQueue = new Array<VisitDefinition>();
-        trace("adding svg to visit queue");
         _visitQueue.push(new VisitDefinition(_svg, function(obj: SVGElement): Void {
-            trace("adding elelemt : " + obj);
             _target.addElement(obj);
         }));
-        trace("queue length " + _visitQueue.length);
 
         _process = new Process(null, executeLoop, parseComplete);
         if (synchronous) {
@@ -88,16 +86,7 @@ class AsyncSVGParser extends EventDispatcher {
     }
 
     private function executeLoop(): Int {
-//        for (v in _visitQueue) {
-//            var x: Xml = v.node.x;
-//            if (x.nodeType == XmlType.Document) {
-//                x = x.firstElement();
-//            }
-//        }
-
-        trace("execute loop " + _visitQueue.length);
         var obj = _visitQueue.shift();
-        trace(obj);
         Reflect.callMethod(_visitQueue, _visitQueue.unshift, visit(obj));
         return (_visitQueue.length == 0) ? Process.COMPLETE : Process.CONTINUE;
     }
@@ -123,9 +112,7 @@ class AsyncSVGParser extends EventDispatcher {
             obj = Std.string(elt);
         }
         else if (x.nodeType == XmlType.Element) {
-            var localName: String = x.nodeName;
-            trace("localName " + localName);
-            trace("visitQueue Length " + _visitQueue.length);
+            var localName: String = x.nodeName.toLowerCase();
             switch (localName)
             {
                 case "svg":obj = visitSvg(elt);
@@ -203,7 +190,8 @@ class AsyncSVGParser extends EventDispatcher {
 
             if (Std.is(element, SVGContainer)) {
                 var container: SVGContainer = try cast(element, SVGContainer) catch (e: Dynamic) null;
-                for (childElt in elt.descendants()) {
+                for (el in x.elements()) {
+                    var childElt: FastXML = FastXML.parse(el.toString());
                     childVisits.push(new VisitDefinition(childElt, function(child: SVGElement): Void {
                         if (child != null) {
                             container.addElement(child);

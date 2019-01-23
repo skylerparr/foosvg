@@ -39,7 +39,7 @@ class SVGShape extends SVGGraphicsElement
         beforeDraw();
         
         content.graphics.clear();
-        
+
         if (hasStroke && !hasDashedStroke)
         {
             lineStyle(content.graphics);

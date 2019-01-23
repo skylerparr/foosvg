@@ -15,6 +15,7 @@ import com.lorentz.svg.utils.MathUtils;
 import flash.geom.Matrix;
 import flash.geom.Rectangle;
 
+using StringTools;
 class SVGParserCommon {
     public static function parsePathData(input: String): Array<com.lorentz.svg.data.path.SVGPathCommand> {
         var commands: Array<com.lorentz.svg.data.path.SVGPathCommand> = new Array<com.lorentz.svg.data.path.SVGPathCommand>();
@@ -97,29 +98,29 @@ class SVGParserCommon {
             return new Matrix();
         }
 
-        var ereg: EReg = ~/(\\w+?\\s*\\([^)]*\\))/g;
+        var ereg: EReg = ~/(\w+?\s*\([^)]*\))/g;
         var matches: Array<String> = [];
         ereg.map(m, function(reg: EReg): String {
             matches.push(reg.matched(0));
             return "";
         });
-        var transformations: Array<String> = matches;//ereg.split(m);
+        var transformations: Array<String> = matches;
 
         var mat: Matrix = new Matrix();
 
         if (Std.is(transformations, Array)) {
-            var i: Int = as3hx.Compat.parseInt(transformations.length - 1);
+            var i: Int = transformations.length - 1;
             while (i >= 0) {
-                var ereg: EReg = ~/(\\w+?)\\s*\\(([^)]*)\\)/;
-                var matches: Array<String> = [];
-                ereg.map(transformations[i], function(reg: EReg): String {
-                    matches.push(reg.matched(0));
+                var transReg: EReg = ~/\s*\(([^)]*)/;
+                var p: Array<String> = [];
+                transReg.map(transformations[i], function(reg: EReg): String {
+                    p.push(reg.matched(0).replace("(", ""));
                     return "";
                 });
-                var parts: Array<Dynamic> = matches;
+                var parts: Array<Dynamic> = [transReg.split(transformations[i])[0], p[0]];
                 if (Std.is(parts, Array)) {
-                    var name: String = parts[1].toLowerCase();
-                    var args: Array<String> = splitNumericArgs(parts[2]);
+                    var name: String = parts[0].toLowerCase();
+                    var args: Array<String> = splitNumericArgs(parts[1]);
 
                     switch (name)
                     {

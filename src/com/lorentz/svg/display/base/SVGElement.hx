@@ -243,22 +243,16 @@ class SVGElement extends Sprite implements ICloneable {
     }
 
     private function setParentElement(value: SVGElement): Void {
-        trace("_parentELement != value " + (_parentElement != value));
-        if (_parentElement != value) {
+                if (_parentElement != value) {
             if (_parentElement != null) {
-                trace("parent numInvalid " + _parentElement.numInvalidElements);
-                trace("current numInvalid " + _numInvalidElements);
-                _parentElement.numInvalidElements -= _numInvalidElements;
+                                                _parentElement.numInvalidElements -= _numInvalidElements;
                 _parentElement.numRunningAsyncValidations -= _numRunningAsyncValidations;
             }
 
             _parentElement = value;
 
-            trace("parentElement null? " + _parentElement);
-            if (_parentElement != null) {
-                trace("parent numInvalid " + _parentElement.numInvalidElements);
-                trace("current numInvalid " + _numInvalidElements);
-                _parentElement.numInvalidElements += _numInvalidElements;
+                        if (_parentElement != null) {
+                                                _parentElement.numInvalidElements += _numInvalidElements;
                 _parentElement.numRunningAsyncValidations += _numRunningAsyncValidations;
             }
 
@@ -316,26 +310,17 @@ class SVGElement extends Sprite implements ICloneable {
     }
 
     private function set_numInvalidElements(value: Int): Int {
-        trace("setting num invalid elements " + _numInvalidElements);
-        trace("setting num invalid elements value " + value);
-        var d: Int = as3hx.Compat.parseInt(value - _numInvalidElements);
+                        var d: Int = as3hx.Compat.parseInt(value - _numInvalidElements);
 
         _numInvalidElements = value;
 
-        trace("_parentElement null? " + _parentElement);
-        if (_parentElement != null) {
-            trace("_parentElement numValidElements " + _parentElement.numInvalidElements);
-            trace("d " + d);
-            _parentElement.numInvalidElements += d;
+                if (_parentElement != null) {
+                                    _parentElement.numInvalidElements += d;
         }
 
-        trace("_numInvalidElements " + _numInvalidElements);
-        trace("d " + d);
-        if (_numInvalidElements == 0 && d != 0) {
-            trace("has sync validated: " + hasEventListener(SVGEvent.SYNC_VALIDATED));
-            if (hasEventListener(SVGEvent.SYNC_VALIDATED)) {
-                trace("dispatching sync validated event");
-                dispatchEvent(new SVGEvent(SVGEvent.SYNC_VALIDATED));
+                        if (_numInvalidElements == 0 && d != 0) {
+                        if (hasEventListener(SVGEvent.SYNC_VALIDATED)) {
+                                dispatchEvent(new SVGEvent(SVGEvent.SYNC_VALIDATED));
             }
             onPartialyValidated();
         }
@@ -365,21 +350,15 @@ class SVGElement extends Sprite implements ICloneable {
     }
 
     private function onPartialyValidated(): Void {
-        trace("on partially validated");
-        if (Std.is(this, ISVGViewPort) && document != null) {
-            trace("adusting viewport");
-            adjustContentToViewPort();
+                if (Std.is(this, ISVGViewPort) && document != null) {
+                        adjustContentToViewPort();
         }
 
-        trace("validation in progress " + validationInProgress);
-        if (!validationInProgress) {
-            trace("has validated listener " + hasEventListener(SVGEvent.VALIDATED));
-            if (hasEventListener(SVGEvent.VALIDATED)) {
-                trace("dispatching validated event");
-                dispatchEvent(new SVGEvent(SVGEvent.VALIDATED));
+                if (!validationInProgress) {
+                        if (hasEventListener(SVGEvent.VALIDATED)) {
+                                dispatchEvent(new SVGEvent(SVGEvent.VALIDATED));
             }
-            trace("on validated");
-            onValidated();
+                        onValidated();
         }
     }
 
@@ -387,10 +366,8 @@ class SVGElement extends Sprite implements ICloneable {
     }
 
     private function _invalidate(): Void {
-        trace("invalidate flag " + _invalidFlag + " : " + memberId);
-        if (!_invalidFlag) {
-            trace("&&&&&& setting invalid flag to true &&&&& " + memberId);
-            _invalidFlag = true;
+                if (!_invalidFlag) {
+                        _invalidFlag = true;
 
             numInvalidElements += 1;
 
@@ -430,16 +407,12 @@ class SVGElement extends Sprite implements ICloneable {
             commitProperties();
         }
 
-        trace("numInvalidElements " + numInvalidElements);
-        trace("****invalidFlag**** " + _invalidFlag);
-        if (_invalidFlag) {
-            trace("SETTING INVALID FLAG TO FALSE");
-            _invalidFlag = false;
+                        if (_invalidFlag) {
+                        _invalidFlag = false;
             numInvalidElements -= 1;
         }
 
-        trace(numInvalidElements);
-        if (numInvalidElements > 0) {
+                if (numInvalidElements > 0) {
             for (element in _elementsAttached) {
                 element.validate();
             }
@@ -486,7 +459,7 @@ class SVGElement extends Sprite implements ICloneable {
 
         if (svgClass != null) {
 
-            for (className/* AS3HX WARNING could not determine type for var: className exp: ECall(EField(EIdent(svgClass),split),[EConst(CString( ))]) type: null */ in svgClass.split(" ")) {
+            for (className in svgClass.split(" ")) {
                 var classStyle: StyleDeclaration = document.getStyleDeclaration("." + className);
                 if (classStyle != null) {
                     classStyle.copyStyles(newFinalStyle);
